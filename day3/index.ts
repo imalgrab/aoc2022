@@ -6,13 +6,13 @@ function parseInput(): string[] {
   return input.split('\n');
 }
 
-function findDuplicatedElement(line: string): string | undefined {
-  return line
-    .substring(line.length / 2)
-    .split('')
-    .find((character) =>
-      line.substring(0, line.length / 2).includes(character)
-    );
+function findCommonElement(line: string): string {
+  const first = new Set(line.substring(0, line.length / 2).split(''));
+  const second = new Set(line.substring(line.length / 2).split(''));
+  const intersection = new Set(
+    [...first].filter((element) => second.has(element))
+  );
+  return [...intersection][0];
 }
 
 function calculatePriority(character: string): number {
@@ -26,17 +26,14 @@ function calculatePriority(character: string): number {
 function solvePartOne(): number {
   const parsedInput = parseInput();
   return parsedInput.reduce((acc, currentLine) => {
-    const duplicatedElement = findDuplicatedElement(currentLine);
-    if (duplicatedElement) {
-      const priority = calculatePriority(duplicatedElement);
-      return acc + priority;
-    }
-    return acc;
+    const commonElement = findCommonElement(currentLine);
+    const priority = calculatePriority(commonElement);
+    return acc + priority;
   }, 0);
 }
 
-// const part1 = solvePartOne();
-// console.log(`Sum of the priorities is ${part1}`);
+const part1 = solvePartOne();
+console.log(`Sum of the priorities is ${part1}`);
 
 function parseInputPartTwo(): string[][] {
   const inputArray = input.split('\n');
@@ -48,33 +45,20 @@ function parseInputPartTwo(): string[][] {
   return returnArray;
 }
 
-function findDuplicatedElementPartTwo(array: string[]): string | undefined {
-  const withoutRepetitions = array.map((line) =>
-    Array.from(new Set(line.split(''))).join('')
-  );
-
-  const combined = withoutRepetitions.join('');
-  const set: Record<string, number> = {};
-
-  combined.split('').forEach((character) => {
-    if (set[character] === undefined) {
-      set[character] = 1;
-    } else {
-      set[character] += 1;
-    }
-  });
-
-  return Object.entries(set).find(([k, v]) => v === 3)?.[0];
+function findCommonElementPartTwo(array: string[]): string {
+  const intersection = array
+    .map((line) => new Set(line.split('')))
+    .reduce(
+      (prev, curr) => new Set([...prev].filter((element) => curr.has(element)))
+    );
+  return [...intersection][0];
 }
 
 function solvePartTwo(): number {
   const parsedInput = parseInputPartTwo();
   return parsedInput.reduce((acc, currentArray) => {
-    const duplicatedElement = findDuplicatedElementPartTwo(currentArray);
-    if (duplicatedElement) {
-      return acc + calculatePriority(duplicatedElement);
-    }
-    return acc;
+    const duplicatedElement = findCommonElementPartTwo(currentArray);
+    return acc + calculatePriority(duplicatedElement);
   }, 0);
 }
 
