@@ -6,28 +6,30 @@ function parseInput(): string[] {
   return input.split('\n');
 }
 
-function findCommonElement(line: string): string {
+function findCommonElements(line: string): string[] {
   const first = new Set(line.substring(0, line.length / 2).split(''));
   const second = new Set(line.substring(line.length / 2).split(''));
   const intersection = new Set(
     [...first].filter((element) => second.has(element))
   );
-  return [...intersection][0];
+  return [...intersection];
 }
 
-function calculatePriority(character: string): number {
-  const isUpperCase = character.toUpperCase() === character;
-  if (isUpperCase) {
-    return character.charCodeAt(0) - 38;
-  }
-  return character.charCodeAt(0) - 96;
+function calculatePriority(characters: string[]): number {
+  return characters.reduce((acc, current) => {
+    const isUpperCase = current.toUpperCase() === current;
+    if (isUpperCase) {
+      return acc + current.charCodeAt(0) - 38;
+    }
+    return acc + current.charCodeAt(0) - 96;
+  }, 0);
 }
 
 function solvePartOne(): number {
   const parsedInput = parseInput();
   return parsedInput.reduce((acc, currentLine) => {
-    const commonElement = findCommonElement(currentLine);
-    const priority = calculatePriority(commonElement);
+    const commonElements = findCommonElements(currentLine);
+    const priority = calculatePriority(commonElements);
     return acc + priority;
   }, 0);
 }
@@ -45,20 +47,21 @@ function parseInputPartTwo(): string[][] {
   return returnArray;
 }
 
-function findCommonElementPartTwo(array: string[]): string {
+function findCommonElementsPartTwo(array: string[]): string[] {
   const intersection = array
     .map((line) => new Set(line.split('')))
     .reduce(
       (prev, curr) => new Set([...prev].filter((element) => curr.has(element)))
     );
-  return [...intersection][0];
+  return [...intersection];
 }
 
 function solvePartTwo(): number {
   const parsedInput = parseInputPartTwo();
   return parsedInput.reduce((acc, currentArray) => {
-    const duplicatedElement = findCommonElementPartTwo(currentArray);
-    return acc + calculatePriority(duplicatedElement);
+    const duplicatedElements = findCommonElementsPartTwo(currentArray);
+    const priority = calculatePriority(duplicatedElements);
+    return acc + priority;
   }, 0);
 }
 
