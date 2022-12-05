@@ -5,17 +5,9 @@ function parseInput(): string[][] {
 }
 
 function containsOneAnother(left: string, right: string): boolean {
-  const [leftStart, leftEnd] = left.split('-').map((value) => parseInt(value));
-  const [rightStart, rightEnd] = right
-    .split('-')
-    .map((value) => parseInt(value));
-  if (leftStart <= rightStart && leftEnd >= rightEnd) {
-    return true;
-  }
-  if (rightStart <= leftStart && rightEnd >= leftEnd) {
-    return true;
-  }
-  return false;
+  const [l1, l2] = left.split('-').map((x) => parseInt(x));
+  const [r1, r2] = right.split('-').map((x) => parseInt(x));
+  return (l1 <= r1 && l2 >= r2) || (r1 <= l1 && r2 >= l2);
 }
 
 function solvePartOne() {
@@ -31,14 +23,9 @@ const partOne = solvePartOne();
 console.log(`One range fully contain the other in ${partOne} assignment pairs`);
 
 function overlaps(left: string, right: string): boolean {
-  const [leftStart, leftEnd] = left.split('-').map((value) => parseInt(value));
-  const [rightStart, rightEnd] = right
-    .split('-')
-    .map((value) => parseInt(value));
-  if (leftStart < rightStart) {
-    return leftEnd >= rightStart;
-  }
-  return rightEnd >= leftStart;
+  const [l1, l2] = left.split('-').map((x) => parseInt(x));
+  const [r1, r2] = right.split('-').map((x) => parseInt(x));
+  return (l1 <= r1 && l2 >= r1) || (l1 > r1 && r2 >= l1);
 }
 
 function solvePartTwo() {
