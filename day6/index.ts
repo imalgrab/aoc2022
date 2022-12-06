@@ -1,19 +1,11 @@
 import input from './input';
 
 function solve(buffer: string, distinctCount: number) {
-  const unique = new Set();
   for (let i = 0; i < buffer.length; i++) {
-    unique.add(buffer[i]);
-    for (let j = i + 1; j < buffer.length; j++) {
-      if (unique.size === distinctCount) {
-        return j;
-      }
-      if (!unique.has(buffer[j])) {
-        unique.add(buffer[j]);
-      } else {
-        unique.clear();
-        break;
-      }
+    const substr = buffer.substring(i, i + distinctCount);
+    const set = new Set([...substr]);
+    if (set.size === distinctCount) {
+      return i + distinctCount;
     }
   }
 }
