@@ -81,13 +81,8 @@ function calculateUsedSpaceByDir(dirName: string): number {
 function findSmallestDirectoryPreventingUpdate(usedSpace: number): number {
   const unusedSpace = TOTAL_SPACE - usedSpace;
   const missingSpace = UPDATE_REQUIRED_SPACE - unusedSpace;
-  console.log(missingSpace);
-
-  const sortedSizes = [...directoriesSpace]
-    .sort(([k1, v1], [k2, v2]) => v1 - v2)
-    .map(([_, v]) => v);
-
-  const result = sortedSizes.find((x) => x >= missingSpace);
+  const sortedSpace = [...directoriesSpace.values()].sort((v1, v2) => v1 - v2);
+  const result = sortedSpace.find((x) => x >= missingSpace);
 
   if (result) {
     return result;
