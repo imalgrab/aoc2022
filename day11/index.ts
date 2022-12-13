@@ -1,5 +1,15 @@
-import { createLanguageService } from 'typescript';
 import input from './input';
+
+function gcd(a: number, b: number): number {
+  if (b === 0) {
+    return a;
+  }
+  return gcd(b, a % b);
+}
+
+function lcm(a: number, b: number): number {
+  return (a * b) / gcd(a, b);
+}
 
 type Operand = 'old' | number;
 type OperationMethod = (x: number, y: number) => number;
@@ -135,8 +145,17 @@ function performKeepAway(numOfRounds: number): Monke[] {
   return monkeys;
 }
 
-function calculateMonkeyBusiness(numOfRounds: number): number {
-  const monkeys = performKeepAway(numOfRounds);
+function calculateMonkeyBusiness(
+  numOfRounds: number,
+  shouldUseLCM?: boolean
+): number {
+  let monkeys: Monke[] = [];
+  if (shouldUseLCM) {
+    monkeys = performKeepAwayPartTwo(numOfRounds);
+  } else {
+    monkeys = performKeepAway(numOfRounds);
+  }
+
   return monkeys
     .sort((a, b) => b.numOfInspectedItems - a.numOfInspectedItems)
     .slice(0, 2)
@@ -148,15 +167,17 @@ console.log(partOne);
 
 function performKeepAwayPartTwo(numOfRounds: number): Monke[] {
   const monkeys = parseInput();
+  const leastCommonMultiple = monkeys.reduce((acc, curr) => {
+    return lcm(acc, curr.test.condition);
+  }, 1);
   for (let i = 0; i < numOfRounds; i++) {
     let worryLevel = 0;
     monkeys.forEach((monkey) => {
       const { operation, test, startingItems } = monkey;
       while (startingItems.length > 0) {
         monkey.numOfInspectedItems++;
-        const item = startingItems.shift()! % test.condition;
-        worryLevel = evaluateOperation(item, operation);
-        console.log(worryLevel);
+        const item = startingItems.shift()! % leastCommonMultiple;
+        worryLevel = evaluateOperation(item, operation) % leastCommonMultiple;
         const throwToIndex =
           worryLevel % test.condition === 0 ? test.positive : test.negative;
         monkeys[throwToIndex].startingItems.push(worryLevel);
@@ -166,7 +187,5 @@ function performKeepAwayPartTwo(numOfRounds: number): Monke[] {
   return monkeys;
 }
 
-const partTwo = performKeepAwayPartTwo(1);
-partTwo.forEach((monkey) =>
-  console.log(`monkey ${monkey.index} = ${monkey.numOfInspectedItems}`)
-);
+const partTwo = calculateMonkeyBusiness(10000, true);
+console.log(partTwo);
