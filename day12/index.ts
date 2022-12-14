@@ -87,9 +87,8 @@ function parseInput(): Graph {
   };
 }
 
-function BFS(graph: Graph): void {
+function BFS(start: number, graph: Graph): void {
   const visited = Array.from(Array(graph.numberOfVertices), () => false);
-  const start = graph.values.findIndex((value) => value === 'S');
 
   visited[start] = true;
   let queue: Queue = [start];
@@ -111,13 +110,42 @@ function BFS(graph: Graph): void {
   }
 }
 
-function findDistanceTo(vertex: string, graph: Graph): number {
-  const vertexIndex = graph.values.findIndex((v) => v === vertex);
+function findDistanceToFinish(graph: Graph): number {
+  const vertexIndex = graph.values.findIndex((v) => v === 'E');
   const distanceToEnd = graph.distances[vertexIndex];
   return distanceToEnd;
 }
 
 const graph = parseInput();
-BFS(graph);
-const partOne = findDistanceTo('E', graph);
-console.log(partOne);
+
+// part one
+// BFS(graph);
+// const partOne = findDistanceToFinish(graph);
+// console.log(partOne);
+
+//part two
+
+function findStartingPoints(values: string[]): number[] {
+  const startingPoints: number[] = [];
+  values.forEach((value, i) => {
+    if ('aS'.includes(value)) {
+      startingPoints.push(i);
+    }
+  });
+  return startingPoints;
+}
+
+function findShortestPathLength(starts: number[]): number {
+  const shortestPathLengths = starts
+    .map((start) => {
+      BFS(start, graph);
+      const distance = findDistanceToFinish(graph);
+      return distance;
+    })
+    .sort((a, b) => a - b);
+  return shortestPathLengths[0];
+}
+
+const startingPoints = findStartingPoints(graph.values);
+const shortestPathLength = findShortestPathLength(startingPoints);
+console.log(shortestPathLength);
