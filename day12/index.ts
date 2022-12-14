@@ -87,14 +87,6 @@ function parseInput(): Graph {
   };
 }
 
-function restoreOrder(queue: Queue, values: string[]): Queue {
-  return queue.sort((a, b) => {
-    const valueA = indexToValue(values[a]);
-    const valueB = indexToValue(values[b]);
-    return valueA - valueB;
-  });
-}
-
 function BFS(graph: Graph): void {
   const visited = Array.from(Array(graph.numberOfVertices), () => false);
   const start = graph.values.findIndex((value) => value === 'S');
@@ -106,10 +98,6 @@ function BFS(graph: Graph): void {
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-
-    if (graph.values[current] === 'E') {
-      return;
-    }
 
     const neighbours = graph.adjacencyLists[current];
     neighbours.forEach((neighbour) => {
