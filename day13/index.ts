@@ -1,4 +1,3 @@
-import { CLIENT_RENEG_LIMIT } from 'tls';
 import input from './input';
 
 type Pair<T> = [T, T];
