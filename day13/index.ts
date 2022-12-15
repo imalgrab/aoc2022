@@ -1,9 +1,20 @@
+import { CLIENT_RENEG_LIMIT } from 'tls';
 import input from './input';
+
+type Pair<T> = [T, T];
+
+type Packet = any[];
+type PacketPair = Pair<Packet>;
+type Packets = PacketPair[];
 
 enum Comparison {
   false = 0,
   maybe = 0.5,
   true = 1,
+}
+
+function isPacketEqual(packet1: Packet, packet2: Packet): boolean {
+  return JSON.stringify(packet1) === JSON.stringify(packet2);
 }
 
 function isNumber(argument: any): argument is number {
@@ -14,7 +25,7 @@ function isArray(argument: any): argument is any[] {
   return Array.isArray(argument);
 }
 
-function parseInput(): any[][] {
+function parseInput(): Packets {
   return input
     .split('\n\n')
     .map((line) => line.split('\n'))
@@ -31,18 +42,15 @@ function compareNumbers(left: number, right: number): Comparison {
   return Comparison.false;
 }
 
-function compareNumberArray(left: number, right: number[]): Comparison {
+function compareNumberArray(left: number, right: any[]): Comparison {
   return compareArrays([left], right);
 }
 
-function compareArrayNumber(left: number[], right: number): Comparison {
+function compareArrayNumber(left: any[], right: number): Comparison {
   return compareArrays(left, [right]);
 }
 
-function compareArrays(
-  left: number[] | number[][],
-  right: number[] | number[][]
-): Comparison {
+function compareArrays(left: any[], right: any[]): Comparison {
   let comparison = Comparison.maybe;
 
   if (left.length <= right.length) {
@@ -111,22 +119,47 @@ function compareArrays(
   return Comparison.false;
 }
 
-function sumOfIndicesInRightOrder(): number {
-  const pairs = parseInput();
-  const result = pairs
-    .map(([left, right], i) => {
-      const result = compareArrays(left, right);
-      return result;
-    })
-    .map((value, index) => {
-      if (value === 1) {
-        return index + 1;
+function sumOfIndicesInRightOrder(packets: Packets): number {
+  const result = packets
+    .map(([left, right]) => compareArrays(left, right))
+    .reduce((acc, curr, index) => {
+      if (curr === Comparison.true) {
+        return acc + index + 1;
       }
-      return value;
-    })
-    .reduce((a, b) => a + b);
+      return acc;
+    }, 0);
   return result;
 }
 
-const partOne = sumOfIndicesInRightOrder();
+const packetPairs = parseInput();
+
+const partOne = sumOfIndicesInRightOrder(packetPairs);
 console.log(partOne);
+
+function findDecoderKey(packets: Packets): number {
+  const [firstDivider, secondDivider]: PacketPair = [[[2]], [[6]]];
+  const packetPairsWithDividers = [...packets, [firstDivider, secondDivider]];
+
+  const decoderKey = packetPairsWithDividers
+    .flat()
+    .sort((left, right) => {
+      const comparison = compareArrays(left, right);
+      if (comparison === Comparison.true) {
+        return -1;
+      }
+      return 1;
+    })
+    .reduce((currentDecoderKey, packet, index) => {
+      const packetIsFirstDivider = isPacketEqual(packet, firstDivider);
+      const packetIsSecondDivider = isPacketEqual(packet, secondDivider);
+      if (packetIsFirstDivider || packetIsSecondDivider) {
+        return currentDecoderKey * (index + 1);
+      }
+      return currentDecoderKey;
+    }, 1);
+
+  return decoderKey;
+}
+
+const partTwo = findDecoderKey(packetPairs);
+console.log(partTwo);
